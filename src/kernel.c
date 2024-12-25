@@ -1,4 +1,5 @@
 #include "include/enums.h"
+#include "drivers/ports.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -102,10 +103,33 @@ void terminal_log_data(const char* data, enum LogType logType)
 
 void main()
 {
-    /* Initialize terminal interface */
+
 	terminal_initialize();
 
-    terminal_log_data("Booted OS: Version 1.0\n", 0);
-    terminal_log_data("Waiting for tasks\n", 1);
-    terminal_log_data("Test Error\n", -1);
+	terminal_log_data("Booted OS: Version 1.0\n", 0);
+	terminal_log_data("Waiting for tasks\n", 1);
+	terminal_log_data("Trying to get out of VGA\n", 1);
+
+	port_byte_out(0x3d4, 14);
+	int position = port_byte_in(0x3d5);
+    position = position << 8; /* high byte */
+
+    port_byte_out(0x3d4, 15); /* requesting low byte */
+    position += port_byte_in(0x3d5);
+
+    /* VGA 'cells' consist of the character and its control data
+     * e.g. 'white on black background', 'red text on white bg', etc */
+    int offset_from_vga = position * 2;
+
+	char *vga = (char*) 0xb8000;
+    vga[offset_from_vga] = 'X'; 
+    vga[offset_from_vga+1] = 0x0f;
+
+    /*
+		terminal_initialize();
+
+		terminal_log_data("Booted OS: Version 1.0\n", 0);
+		terminal_log_data("Waiting for tasks\n", 1);
+		terminal_log_data("Trying to get out of VGA\n", 1);
+	*/
 }
