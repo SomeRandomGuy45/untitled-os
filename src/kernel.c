@@ -84,8 +84,8 @@ void terminal_writestring(const char* data)
 void terminal_log_data(const char* data, enum LogType logType)
 {
     enum vga_color color = VGA_COLOR_GREEN;
-    char* dataType;
-    if (logType != ERROR)
+    char* dataType = "[SUCCESS] ";
+    if (logType == ERROR)
     {
         color = VGA_COLOR_RED;
         dataType = "[ERROR] ";
@@ -93,8 +93,6 @@ void terminal_log_data(const char* data, enum LogType logType)
     {
         color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
         dataType = "[INFO] ";
-    } else {
-        dataType = "[SUCCESS] ";
     }
     terminal_setcolor(color);
     terminal_writestring(dataType);
@@ -107,5 +105,7 @@ void main()
     /* Initialize terminal interface */
 	terminal_initialize();
 
-    terminal_log_data("hi\n", 0);
+    terminal_log_data("Booted OS: Version 1.0\n", 0);
+    terminal_log_data("Waiting for tasks\n", 1);
+    terminal_log_data("Test Error\n", -1);
 }
